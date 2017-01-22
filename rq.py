@@ -4,8 +4,6 @@
 import pandas as pd
 
 import sys
-
-
 fn = sys.argv[1]
 
 userfields = {
@@ -20,8 +18,6 @@ df = (pd.read_csv(fn)
         .rename(columns=lambda string: string.replace(' ', '_'))
         .rename(columns=userfields))
 
-print(df.columns)
-
 def clean_resps(df, resp_col = 'Response_1'):
     def make_response(row):
         resp = {'response': row[resp_col]}
@@ -30,38 +26,10 @@ def clean_resps(df, resp_col = 'Response_1'):
     resps = [make_response(row) for i, row in df.iterrows()]
     return resps
 
-
-
-
-import re
-from jinja2 import evalcontextfilter, Markup, escape
-
-_paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
-
-@evalcontextfilter
-def nl2br(eval_ctx, value):
-    result = u'\n\n'.join(u'<p>%s</p>' % p.replace('\n', Markup('<br>\n'))
-                          for p in _paragraph_re.split(escape(value)))
-    if eval_ctx.autoescape:
-        result = Markup(result)
-    return result
-
-
-
-import jinja2
-
-# TODO: make this loadable in any directory
-loader = jinja2.FileSystemLoader('.')
-env = jinja2.Environment(loader=loader)
-env.filters['nl2br'] = nl2br
-
-
+from templating import env
 template = env.get_template('template.html')
 
-
-
 qs = [col for col in df.columns if col.startswith('Response')]
-
 
 for q in qs:
     resps = clean_resps(df, q)
