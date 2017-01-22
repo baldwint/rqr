@@ -15,8 +15,7 @@ def nl2br(eval_ctx, value):
 
 import jinja2
 
-# TODO: make this loadable in any directory
-loader = jinja2.FileSystemLoader('.')
+loader = jinja2.PackageLoader('rqr', 'templates')
 env = jinja2.Environment(loader=loader)
 env.filters['nl2br'] = nl2br
 

@@ -26,7 +26,7 @@ def clean_resps(df, resp_col = 'Response_1'):
     resps = [make_response(row) for i, row in df.iterrows()]
     return resps
 
-from templating import env
+from .templating import env
 template = env.get_template('template.html')
 
 qs = [col for col in df.columns if col.startswith('Response')]
