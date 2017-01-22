@@ -34,8 +34,7 @@ def build_question_table(qf):
         questions[id] = {'name': q.name, 'text': q.questiontext}
     return questions
 
-def build_response_table(qf):
-    xml = objectify.parse(qf)
+def build_response_table(xml):
 
     sel_attempts = CSSSelector('attempt')
     sel_question_attempts = CSSSelector('question_attempt')
@@ -52,6 +51,14 @@ def build_response_table(qf):
         attempts.append((uid, qatts))
     return attempts
 
+def build_quiz_details(qf):
+    xml = objectify.parse(qf)
+
+    sel_quiz = CSSSelector('quiz')
+    quiz, = sel_quiz(xml)
+
+    return str(quiz.name), build_response_table(quiz)
+
 def parse_backup(fn):
     with tarfile.open(fn, 'r:gz') as fl:
         # user file
@@ -67,8 +74,8 @@ def parse_backup(fn):
         q, = filter(is_quiz, fl.getnames())
         qf = fl.extractfile(q)
 
-        atts = build_response_table(qf)
-        return users, questions, atts
+        qname, atts = build_quiz_details(qf)
+        return qname, users, questions, atts
 
 
 if __name__ == "__main__":
@@ -76,7 +83,7 @@ if __name__ == "__main__":
     import sys
     fn = sys.argv[1]
 
-    users, questions, atts = parse_backup(fn)
+    qname, users, questions, atts = parse_backup(fn)
 
     from collections import defaultdict
     qs = defaultdict(list)
@@ -90,6 +97,6 @@ if __name__ == "__main__":
 
 
     qs = [dict(resps=resps, **questions.get(q)) for q,resps in sorted(qs.items())]
-    out = template.render(questions=qs, subject="Reading questions")
+    out = template.render(title=qname, questions=qs, subject="Reading questions")
     with open('output.html', 'w') as fl:
         fl.write(out)
