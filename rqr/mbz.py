@@ -74,7 +74,7 @@ if __name__ == "__main__":
     from .templating import env
     template = env.get_template('template.html')
 
-    for q,resps in qs.items():
-        out = template.render(resps=resps, subject="Reading questions", headline=q)
-        with open('%s.html' % q, 'w') as fl:
-            fl.write(out)
+    qs = [{'headline': q, 'resps': resps} for q,resps in qs.items()]
+    out = template.render(questions=qs, subject="Reading questions")
+    with open('output.html', 'w') as fl:
+        fl.write(out)

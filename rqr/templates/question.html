@@ -1,0 +1,4 @@
+<h1>{{question.headline}}</h1>
+{% for resp in question.resps %}
+    {% include 'response.html' %}
+{% endfor %}
