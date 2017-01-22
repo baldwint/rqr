@@ -12,12 +12,13 @@ df = (pd.read_csv(fn)
         .drop(['Institution', 'Department'], axis=1)
         .rename(columns=lambda string: string.replace(' ', '_')))
 
+USER_FIELDS = ['Last_name', 'First_name', 'ID_number', 'Email_address']
 
 def clean_resps(df, resp_col = 'Response_1'):
     cols = [col for col in df.columns if not col.startswith('Response')]
     def make_response(row):
-        resp = dict(row[cols])
-        resp['Response'] = row[resp_col]
+        resp = {'response': row[resp_col]}
+        resp['user'] = dict(row[USER_FIELDS])
         return resp
     resps = [make_response(row) for i, row in df.iterrows()]
     return resps
