@@ -8,17 +8,24 @@ import sys
 
 fn = sys.argv[1]
 
+userfields = {
+    'Last_name': 'lastname',
+    'First_name': 'firstname',
+    'ID_number': 'idnumber',
+    'Email_address': 'email',
+}
+
 df = (pd.read_csv(fn)
         .drop(['Institution', 'Department'], axis=1)
-        .rename(columns=lambda string: string.replace(' ', '_')))
+        .rename(columns=lambda string: string.replace(' ', '_'))
+        .rename(columns=userfields))
 
-USER_FIELDS = ['Last_name', 'First_name', 'ID_number', 'Email_address']
+print(df.columns)
 
 def clean_resps(df, resp_col = 'Response_1'):
-    cols = [col for col in df.columns if not col.startswith('Response')]
     def make_response(row):
         resp = {'response': row[resp_col]}
-        resp['user'] = dict(row[USER_FIELDS])
+        resp['user'] = dict(row[list(userfields.values())])
         return resp
     resps = [make_response(row) for i, row in df.iterrows()]
     return resps
