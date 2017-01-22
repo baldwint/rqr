@@ -1,0 +1,36 @@
+<html>
+<head>
+<style type="text/css">
+
+body {
+    font-family: Georgia, Garamond, serif;
+}
+#main {
+    width:750px;
+}
+div.entry div.date {
+    float: left;
+    font-style: italic;
+    width: 17%;
+    text-align: right;
+}
+div.entry div.details {
+    margin-left: 20%;
+}
+div.entry div.details p {
+    margin-top: 1em;
+}
+
+
+</style>
+</head>
+<body>
+<h1>{{headline}}</h1>
+{% for resp in resps %}
+    <div class="entry">
+        <div class="date"><a href="mailto:{{resp.Email_address}}?subject={{subject|urlencode}}&body={{resp.Response|urlencode}}">{{resp.Last_name}}, {{resp.First_name}}</a></div>
+    <div class="details"><p>{{resp.Response|nl2br}}</p></div>
+    </div>
+{% endfor %}
+</body>
+</html>
