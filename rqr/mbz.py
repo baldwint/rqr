@@ -23,6 +23,16 @@ def build_user_table(uf):
 
     return users
 
+def build_question_table(qf):
+    xml = objectify.parse(qf)
+    sel_questions = CSSSelector('question')
+
+    questions = {}
+    for q in sel_questions(xml):
+        id = int(q.attrib['id'])
+        assert id not in questions
+        questions[id] = {'name': q.name, 'text': q.questiontext}
+    return questions
 
 def build_response_table(qf):
     xml = objectify.parse(qf)
@@ -48,13 +58,17 @@ def parse_backup(fn):
         uf = fl.extractfile('users.xml')
         users = build_user_table(uf)
 
+        # question file
+        qf = fl.extractfile('questions.xml')
+        questions = build_question_table(qf)
+
         # quiz file
         is_quiz = lambda fname: fname.endswith('quiz.xml')
         q, = filter(is_quiz, fl.getnames())
         qf = fl.extractfile(q)
 
         atts = build_response_table(qf)
-        return users, atts
+        return users, questions, atts
 
 
 if __name__ == "__main__":
@@ -62,7 +76,7 @@ if __name__ == "__main__":
     import sys
     fn = sys.argv[1]
 
-    users, atts = parse_backup(fn)
+    users, questions, atts = parse_backup(fn)
 
     from collections import defaultdict
     qs = defaultdict(list)
@@ -74,7 +88,8 @@ if __name__ == "__main__":
     from .templating import env
     template = env.get_template('template.html')
 
-    qs = [{'headline': q, 'resps': resps} for q,resps in qs.items()]
+
+    qs = [dict(resps=resps, **questions.get(q)) for q,resps in sorted(qs.items())]
     out = template.render(questions=qs, subject="Reading questions")
     with open('output.html', 'w') as fl:
         fl.write(out)
