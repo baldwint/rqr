@@ -4,6 +4,12 @@ import tarfile
 from lxml import objectify
 from lxml.cssselect import CSSSelector
 
+def handle_null(input):
+    if input == '$@NULL@$':
+        return '-'
+    else:
+        return str(input)
+
 def build_user_table(uf):
     xml = objectify.parse(uf)
     sel_users = CSSSelector('user')
@@ -29,11 +35,11 @@ def build_response_table(qf):
         uid = int(att.userid)
         qatts = {}
         for qatt in sel_question_attempts(att):
-            qid = int(qatt.attrib['id'])
-            resp = qatt.responsesummary
+            qid = int(qatt.questionid)
+            resp = handle_null(qatt.responsesummary)
             assert qid not in qatts
             qatts[qid] = resp
-        attempts.append(qatts)
+        attempts.append((uid, qatts))
     return attempts
 
 def parse_backup(fn):
@@ -58,5 +64,17 @@ if __name__ == "__main__":
 
     users, atts = parse_backup(fn)
 
-    print(users)
-    print(atts)
+    from collections import defaultdict
+    qs = defaultdict(list)
+
+    for uid,qatts in atts:
+        for qid,resp in qatts.items():
+            qs[qid].append({'response': resp, 'user': users.get(uid)})
+
+    from .templating import env
+    template = env.get_template('template.html')
+
+    for q,resps in qs.items():
+        out = template.render(resps=resps, subject="Reading questions", headline=q)
+        with open('%s.html' % q, 'w') as fl:
+            fl.write(out)
