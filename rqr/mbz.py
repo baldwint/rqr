@@ -83,6 +83,9 @@ if __name__ == "__main__":
     import sys
     fn = sys.argv[1]
 
+    import os
+    bn = os.path.splitext(fn)[0]
+
     qname, users, questions, atts = parse_backup(fn)
 
     from collections import defaultdict
@@ -98,5 +101,5 @@ if __name__ == "__main__":
 
     qs = [dict(resps=resps, **questions.get(q)) for q,resps in sorted(qs.items())]
     out = template.render(title=qname, questions=qs, subject="Reading questions")
-    with open('output.html', 'w') as fl:
+    with open(bn + '.html', 'w') as fl:
         fl.write(out)
