@@ -33,7 +33,7 @@ setup(name='rqr',
           'Programming Language :: Python :: 3.5',
           'Programming Language :: Python :: 3.6',
       ),
-      install_requires=['lxml'],
+      install_requires=['lxml', 'jinja2'],
       packages=['rqr'],
       package_data={
           'rqr': ['templates/*.html'],
