@@ -1,5 +1,5 @@
 
-if __name__ == "__main__":
+def main():
 
     import sys
     fn = sys.argv[1]
@@ -25,3 +25,6 @@ if __name__ == "__main__":
     out = template.render(title=qname, questions=qs, subject="Reading questions")
     with open(bn + '.html', 'w') as fl:
         fl.write(out)
+
+if __name__ == "__main__":
+    main()
